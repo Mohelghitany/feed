@@ -23,10 +23,11 @@ function Post({ post }) {
     });
     await updatePostLike(optimisticPost.id);
   }
+
   return (
     <article className="post">
       <div className="post-image">
-        <img src={optimisticPost.imageUrl} alt={optimisticPost.title} />
+        <img src={optimisticPost.image} alt={optimisticPost.title} />
       </div>
       <div className="post-content">
         <header>
@@ -39,7 +40,7 @@ function Post({ post }) {
               </time>
             </p>
           </div>
-          <div>
+          <div className={optimisticPost.isLiked ? "liked" : ""}>
             <form action={likeAction}>
               <LikeButton />
             </form>
