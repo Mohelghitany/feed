@@ -1,28 +1,51 @@
-import { formatDate } from '@/lib/format';
-import LikeButton from './like-icon';
+"use client";
+import { useOptimistic } from "react";
+import { updatePostLike } from "@/lib/actions/post-actions";
+
+import { formatDate } from "@/lib/format";
+import LikeButton from "./like-icon";
 
 function Post({ post }) {
+  const [optimisticPost, setOptimisticPost] = useOptimistic(
+    post,
+    (current, next) => {
+      return {
+        ...current,
+        ...next,
+      };
+    },
+  );
+  async function likeAction() {
+    const isLiked = !optimisticPost.isLiked;
+    setOptimisticPost({
+      isLiked,
+      likes: optimisticPost.likes + (isLiked ? 1 : -1),
+    });
+    await updatePostLike(optimisticPost.id);
+  }
   return (
     <article className="post">
       <div className="post-image">
-        <img src={post.image} alt={post.title} />
+        <img src={optimisticPost.imageUrl} alt={optimisticPost.title} />
       </div>
       <div className="post-content">
         <header>
           <div>
-            <h2>{post.title}</h2>
+            <h2>{optimisticPost.title}</h2>
             <p>
-              Shared by {post.userFirstName} on{' '}
-              <time dateTime={post.createdAt}>
-                {formatDate(post.createdAt)}
+              Shared by {optimisticPost.userFirstName} on{" "}
+              <time dateTime={optimisticPost.createdAt}>
+                {formatDate(optimisticPost.createdAt)}
               </time>
             </p>
           </div>
           <div>
-            <LikeButton />
+            <form action={likeAction}>
+              <LikeButton />
+            </form>
           </div>
         </header>
-        <p>{post.content}</p>
+        <p>{optimisticPost.content}</p>
       </div>
     </article>
   );
